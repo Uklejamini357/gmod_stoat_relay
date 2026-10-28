@@ -1,5 +1,7 @@
-net.Receive("!!discord-receive", function()
+local color_white = Color(255,255,255)
+
+net.Receive("!!stoat-receive", function()
 	local msg = net.ReadTable()
 
-	chat.AddText( Discord.prefixClr, "["..Discord.prefix.."] ", Color(255, 255, 255), msg.author..": ", msg.content )
+	chat.AddText(Stoat.prefixClr, "["..Stoat.prefix.."] ", Stoat.UserNameClr or color_white, msg.author, color_white, ": ", Stoat.UserMsgClr or color_white, msg.content)
 end)

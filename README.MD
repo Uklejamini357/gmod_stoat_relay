@@ -1,6 +1,6 @@
-# Discord integration for Garry's Mod
+# Stoat integration for Garry's Mod
 
-Transmits GMod chat to Discord and Discord chat to GMod.
+Transmits GMod chat to Stoat and vice-versa.
 
 ## Dependencies
 
@@ -9,14 +9,6 @@ Transmits GMod chat to Discord and Discord chat to GMod.
 
 ### Installation guide
 1. Put dependencies into `garrysmod/lua/bin` (create if directory does not exist).
-2. Then download the addon and unpack to `garrysmod/addons`.
-3. Finally, edit `gmod_discord_relay/lua/cl_config.lua` and `gmod_discord_relay/lua/sv_config.lua` to configure the addon. 
-4. After that you should restart server and voila, it works!
-
-### Discord bot settings
-![preview](preview/perm1.png)
-![preview](preview/perm2.png)
-
-## Preview
-![discordpreview](preview/1.png)
-![gmodpreview](preview/2.png)
+2. Then download the addon and unpack to `garrysmod/addons`. (`git clone` also works)
+3. Finally, edit `gmod_stoat_relay/lua/cl_config.lua` and `gmod_stoat_relay/lua/sv_config.lua` to configure the addon. 
+4. After that you should do a full server restart and voila, it works!

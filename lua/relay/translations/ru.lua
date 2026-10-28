@@ -1,4 +1,4 @@
-DiscordString = {
+StoatString = {
 	["nobody"] = "никого",
 	["connect"] = "**Подключиться**",
 	["currentMap"] = "**Карта сейчас**",

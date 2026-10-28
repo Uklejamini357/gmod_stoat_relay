@@ -12,15 +12,15 @@ local coroutine_resume = coroutine.resume
 local coroutine_create = coroutine.create
 local string_find = string.find
 
-function Discord.send(form) 
-	if type( form ) ~= "table" then Error( '[Discord] invalid type!' ) return end
+function Stoat.send(form) 
+	if type( form ) ~= "table" then Error( '[Stoat] invalid type!' ) return end
 
 	CHTTP({
 		["failed"] = function( msg )
-			print( "[Discord] "..msg )
+			print( "[Stoat] "..msg )
 		end,
 		["method"] = "POST",
-		["url"] = Discord.webhook,
+		["url"] = Stoat.webhook,
 		["body"] = util_TableToJSON(form),
 		["type"] = "application/json; charset=utf-8"
 	})
@@ -36,7 +36,7 @@ local function getAvatar(id, co)
 		coroutine_resume(co)
 	end, 
 	function (msg)
-		Error("[Discord] error getting avatar ("..msg..")")
+		Error("[Stoat] error getting avatar ("..msg..")")
 	end )
 end
 
@@ -46,167 +46,122 @@ local function formMsg(ply, str, _, isLocal)
 
 	local co = coroutine_create( function() 
 		local form = {
-			["username"] = ply:Nick(),
-			["content"] = str,
-			["avatar_url"] = tmpAvatars[id],
-			["allowed_mentions"] = {
-				["parse"] = {}
-			},
+			content = ply:Nick()..": "..str,
 		}
 		
-		Discord.send(form)
+		Stoat.send(form)
 	end )
 
-	if tmpAvatars[id] == nil then 
-		getAvatar( id, co )
-	else 
-		coroutine_resume( co )
-	end
+	coroutine_resume( co )
 end
 
 local function playerConnect( ply )
 	local steamid64 = util_SteamIDTo64( ply.networkid )
 
-	if Discord.hideBots and (ply.networkid == "BOT") then return end
+	if Stoat.hideBots and (ply.networkid == "BOT") then return end
 
 	local co = coroutine_create( function()
 		local form = {
-			["username"] = Discord.hookname,
-			["embeds"] = {{
-				["author"] = {
-					["name"] = ply.name .. DiscordString.connecting,
-					["icon_url"] = tmpAvatars[steamid64],
-					["url"] = 'https://steamcommunity.com/profiles/' .. steamid64,
-				},
-				["color"] = 16763979,
-				["footer"] = {
-					["text"] = ply.networkid,
-				},
-			}},
-			["allowed_mentions"] = {
-				["parse"] = {}
-			},
+			["content"] = "**[Event]** Player joined: "..ply.name.." ("..ply.networkid..")",
 		}
 
-		Discord.send(form)
+		Stoat.send(form)
 	end)
 
-	if tmpAvatars[steamid64] == nil then 
-		getAvatar( steamid64, co )
-	else 
-		coroutine_resume( co )
-	end
+	coroutine_resume( co )
 end
 
-local function plyFrstSpawn(ply)
+local function plyFirstSpawn(ply)
 	if IsValid(ply) then
 		local steamid = ply:SteamID()
 		local steamid64 = util_SteamIDTo64( steamid )
 
-		if Discord.hideBots and ply:IsBot() then return end
+		if Stoat.hideBots and ply:IsBot() then return end
 
 		local co = coroutine_create(function()
 			local form = {
-				["username"] = Discord.hookname,
-				["embeds"] = {{
-					["author"] = {
-						["name"] = ply:Nick() .. DiscordString.connected,
-						["icon_url"] = tmpAvatars[steamid64],
-						["url"] = 'https://steamcommunity.com/profiles/' .. steamid64,
-					},
-					["color"] = 4915018,
-					["footer"] = {
-						["text"] = steamid,
-					},
-				}},
-				["allowed_mentions"] = {
-					["parse"] = {}
-				},
+				["content"] = "**[Event]** Player spawned: "..ply:Nick().." ("..steamid..")",
 			}
 
-			Discord.send(form)
+			Stoat.send(form)
 		end)
 
-		if tmpAvatars[steamid64] == nil then 
-			getAvatar( steamid64, co )
-		else 
-			coroutine_resume( co )
-		end
+		coroutine_resume( co )
 	end
 end
 
 local function plyDisconnect(ply)
 	local steamid64 = util_SteamIDTo64( ply.networkid )
 
-	if Discord.hideBots and (ply.networkid == "BOT") then return end
+	if Stoat.hideBots and (ply.networkid == "BOT") then return end
 
 	local co = coroutine_create(function()
 		local form = {
-			["username"] = Discord.hookname,
-			["embeds"] = {{
-				["author"] = {
-					["name"] = ply.name .. DiscordString.disconnected,
-					["icon_url"] = tmpAvatars[steamid64],
-					["url"] = 'https://steamcommunity.com/profiles/' .. steamid64,
-				},
-				["description"] = '```' .. ply.reason .. '```',
-				["color"] = 16730698,
-				["footer"] = {
-					["text"] = ply.networkid,
-				},
-			}},
-			["allowed_mentions"] = {
-				["parse"] = {}
-			},
+			content = "**[Event]** Player spawned: "..ply:Nick().." ("..ply.networkid..")"
 		}
 
-		Discord.send(form)
+		Stoat.send(form)
 
 		tmpAvatars[steamid64] = nil
 	end)
 
-	if tmpAvatars[steamid64] == nil then 
-		getAvatar( steamid64, co )
-	else 
-		coroutine_resume( co )
-	end
-
+	coroutine_resume( co )
 end
 
-hook.Add("PlayerSay", "!!discord_sendmsg", formMsg)
+hook.Add("PlayerSay", "!!stoat_sendmsg", formMsg)
 gameevent.Listen( "player_connect" )
-hook.Add("player_connect", "!!discord_plyConnect", playerConnect)
-hook.Add("PlayerInitialSpawn", "!!discordPlyFrstSpawn", plyFrstSpawn)
+hook.Add("player_connect", "!!stoat_plyConnect", playerConnect)
+hook.Add("PlayerInitialSpawn", "!!stoatPlyFirstSpawn", plyFirstSpawn)
 gameevent.Listen( "player_disconnect" )
-hook.Add("player_disconnect", "!!discord_onDisconnect", plyDisconnect)
+hook.Add("player_disconnect", "!!stoat_onDisconnect", plyDisconnect)
 
-if Discord.srvStarted then
-	hook.Add("Initialize", "!!discord_srvStarted", function() 
+if Stoat.srvStarted and !Stoat.srvStartedTime then
+	hook.Add("Initialize", "!!stoat_srvStarted", function() 
+		Stoat.srvStartedTime = os.time()
 		local form = {
-			["username"] = Discord.hookname,
-			["embeds"] = {{
-				["title"] = DiscordString.serverStarted,
-				["description"] = DiscordString.currentMapAlt .. game.GetMap(),
-				["color"] = 5793266
-			}}
+			content = "**[SERVER]**: "..StoatString.serverStarted.." // Map: "..game.GetMap().." // Gamemode: "..engine.ActiveGamemode()
 		}
 
-		Discord.send(form)
-		hook.Remove("Initialize", "!!discord_srvStarted")
+		local co = coroutine_create(function()
+			Stoat.send(form)
+		end)
+		coroutine_resume(co)
+
+		hook.Remove("Initialize", "!!stoat_srvStarted")
 	end)
 end
-if Discord.srvShutdown then
-	hook.Add("ShutDown", "!!discord_srvShutdown", function() 
+if Stoat.srvShutdown then
+	hook.Add("ShutDown", "!!stoat_srvShutdown", function()
+		-- local uptime = os.time() - Stoat.srvStartedTime
+		-- local timestr = ""
+		-- if uptime >= 86400 then
+		-- 	local d = math.floor(uptime/86400).." days"
+		-- 	timestr = timestr == "" and d or timestr..", "..d
+		-- 	uptime = uptime - math.floor(uptime/86400)*86400
+		-- end
+		-- if uptime >= 3600 then
+		-- 	local d = math.floor(uptime/3600).." hours"
+		-- 	timestr = timestr == "" and d or timestr..", "..d
+		-- 	uptime = uptime - math.floor(uptime/3600)*3600
+		-- end
+		-- if uptime >= 60 then
+		-- 	local d = math.floor(uptime/60).." minutes"
+		-- 	timestr = timestr == "" and d or timestr..", "..d
+		-- 	uptime = uptime - math.floor(uptime/60)*60
+		-- end
+		-- if uptime >= 1 then
+		-- 	local d = math.floor(uptime).." seconds"
+		-- 	timestr = timestr == "" and d or timestr..", "..d
+		-- end
+
 		local form = {
-			["username"] = Discord.hookname,
-			["embeds"] = {{
-				["title"] = DiscordString.serverShutdown,
-				["description"] = '',
-				["color"] = 16730698
-			}}
+			content = "**[SERVER]**: Closed."
 		}
 
-		Discord.send(form)
-		hook.Remove("Initialize", "!!discord_srvShutdown")
+		local co = coroutine_create(function()
+			Stoat.send(form)
+		end)
+		coroutine_resume(co)
+		hook.Remove("Initialize", "!!stoat_srvShutdown")
 	end)
 end

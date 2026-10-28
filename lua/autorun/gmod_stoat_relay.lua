@@ -3,7 +3,7 @@ if SERVER then
 	include("relay/sv_msgSend.lua")
 	include("relay/sv_msgGet.lua")
 
-	if Discord.language == "en" then
+	if Stoat.language == "en" then
 		include("relay/translations/en.lua")
 	else
 		include("relay/translations/ru.lua")
@@ -14,7 +14,7 @@ if SERVER then
 
 	for num, fl in ipairs(files) do
 		include("relay/commands/" .. fl)
-		print('[Discord] module ' .. fl .. ' added!')
+		print('[Stoat] module ' .. fl .. ' added!')
 	end
 	--
 
@@ -22,7 +22,7 @@ if SERVER then
 	AddCSLuaFile('relay/cl_msgReceive.lua')
 
 	print( "----------------------\n" )
-	print( "DISCORD RELAY LOADED!\n" )
+	print( "STOAT RELAY LOADED!\n" )
 	print( "----------------------" )
 end
 
