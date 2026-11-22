@@ -56,6 +56,7 @@ local function formMsg(ply, str, _, isLocal)
 end
 
 local function playerConnect( ply )
+	if !Stoat.plrEvents then return end
 	local steamid64 = util_SteamIDTo64( ply.networkid )
 
 	if Stoat.hideBots and (ply.networkid == "BOT") then return end
@@ -72,6 +73,7 @@ local function playerConnect( ply )
 end
 
 local function plyFirstSpawn(ply)
+	if !Stoat.plrEvents then return end
 	if IsValid(ply) then
 		local steamid = ply:SteamID()
 		local steamid64 = util_SteamIDTo64( steamid )
@@ -91,6 +93,7 @@ local function plyFirstSpawn(ply)
 end
 
 local function plyDisconnect(ply)
+	if !Stoat.plrEvents then return end
 	local steamid64 = util_SteamIDTo64( ply.networkid )
 
 	if Stoat.hideBots and (ply.networkid == "BOT") then return end
